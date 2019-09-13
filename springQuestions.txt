@@ -688,3 +688,52 @@ lazy intialization of beans
 https://www.baeldung.com/spring-lazy-annotation
 
 https://www.baeldung.com/circular-dependencies-in-spring
+
+============================================================================
+when-are-connections-returned-to-the-connection-pool-with-spring-jpa-hibernate
+
+t's not complicated at all.
+
+First, you need to understand that the Spring transaction manager is only a transaction management abstraction. In your case, the actual transactions happen at the JDBC Connection level.
+
+All @Transactional service method calls are intercepted by the TransactionInterceptor Aspect.
+
+The TransactionIntreceptor delegates transaction management to the current configured AbstractPlatformTransactionManager implementation (JpaTransactionManager in your case).
+
+JpaTransactionManager will bind the current running Spring transaction to an EntityManager, so all DAOs participating in the current transaction share the same Persistence Context.
+
+JpaTransactionManager simply uses the EntityManager Transaction API for controlling transactions:
+
+EntityTransaction tx = txObject.getEntityManagerHolder().getEntityManager().getTransaction();
+tx.commit();
+The JPA Transaction API simply delegates the call to the underlying JDBC Connection commit/rollback methods.
+
+When the transaction is done (commit/rollback), the org.hibernate.engine.transaction.internal.jdbc.JdbcTransaction calls:
+
+transactionCoordinator().getTransactionContext().managedClose();
+which triggers a Hibernate Session (Entity Manager) close.
+
+The underlying JDBC connection is therefore triggered to be closed as well:
+
+jdbcCoordinator.close();
+Hibernate has a logical JDBC connection handle:
+
+@Override
+public Connection close() {
+    LOG.tracev( "Closing JDBC container [{0}]", this );
+    if ( currentBatch != null ) {
+    LOG.closingUnreleasedBatch();
+        currentBatch.release();
+    }
+    cleanup();
+    return logicalConnection.close();
+}
+The logical connection delegates the close call to the currently configured connection provider (DataSourceConnectionProvider in your case), which simply calls the close method on the JDBC connection:
+
+@Override
+public void closeConnection(Connection connection) throws SQLException {
+     connection.close();
+}
+Like any other connection pooling DataSource, the JDBC connection close simply returns the connection to the pool and doesn't close the physical database connection. That's because the connection pooling DataSource returns a JDBC Connection proxy that intercepts all calls and delegates the closing to the connection pool handling logic.
+
+You can also find more details about this topic and why you need to set the hibernate.connection.provider_disables_autocommit property with Hibernate in this article.
