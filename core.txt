@@ -726,6 +726,11 @@ Waiting
 Timed Waiting
 Terminated
 
+There is 1 way to create a Thread but task can be assigned to Thread using 3 different ways either by using.
+Runnable interface (run() method will be invoked)
+Thread class (run() method will be invoked)
+Callable interface (call() method will be invoked)
+
 
  Thread.getState() method to get the current state of the thread
  Java provides java.lang.Thread.State class that defines the ENUM constants for the state of a thread
@@ -762,6 +767,20 @@ Terminated
 		Constant type: Terminated
 		Declaration: public static final Thread.State TERMINATED
 		Description: Thread state for a terminated thread. The thread has completed execution.
+		
+How it throws IllegalThreadStateException?
+If you see the code of start() method, you will observe that Thread maintains threadStatus whose value initialy is 0 and once the thread is completed its value is 2.
+
+	private volatile int threadStatus = 0;
+	 public synchronized void start() {
+
+		if (threadStatus != 0)
+		    throw new IllegalThreadStateException();
+		}
+		....
+		....    
+	}
+	So when thread.start() is called again, threadStatus value is 2 and not 0 that is why it throws IllegalThreadStateException .		
 		
 -----------------------------------------------------------------------
 
@@ -848,7 +867,51 @@ Ans)In a multi-threaded environment thread starvation occurs if a low priority t
 
 What is threadLocal variable?
 
-Ans) ThreadLocal is a class. If a variable is declared as threadLocal then each thread will have a its own copy of variable and would not interfere with the other's thread copy. Typical scenario to use this would be giving JDBC connection to each thread so that there is no conflict.		  
+Ans) ThreadLocal is a class. If a variable is declared as threadLocal then each thread will have a its own copy of variable and would not interfere with the other's thread copy. Typical scenario to use this would be giving JDBC connection to each thread so that there is no conflict.	
+
+Can main thread dies before the child thread?
+Does child threads still executes even after if their parent thread dies or terminates?
+Will JVM exits after main thread is dead?
+
+Ans) First of all I would like to tell you that there is no concept of parent - child relationship between threads.
+	Each and every thread created is independent of thread who created it.
+
+	Now coming back to actual question, Can main Thread dies before the child thread? Yes. 
+	Main thread dies after completing its job even after the thread created by main thread is not yet completed.
+
+	But point is will JVM die or not. 
+	If there exist any non-daemon thread in JVM which is not yet completed then JVM will not exit and wait until all no non-daemon threads completes its task.
+	In other words, we can also say, JVM will exit when the only running threads are daemon threads.
+
+	Lets see example below and things will be more clear,
+	public class ThreadDemo {
+	 public static void main(String ar[]){
+
+	  final Thread mainThread = Thread.currentThread();
+	  System.out.println("Inside Main Thread :"+mainThread.getName());
+
+	  new Thread(new Runnable() {
+
+	   @Override
+	   public void run() {
+	    Thread childThread= Thread.currentThread();
+	    for(int i=0; i<5;i++){
+	     System.out.println("Inside Child Thread :"+childThread.getName());
+	     try {
+	      Thread.sleep(1000);
+	     } catch (InterruptedException e) {
+	      e.printStackTrace();
+	     }
+	    }
+	    System.out.println("Check Main Thread is alive :" + mainThread.isAlive());
+	   }
+
+	  }).start();
+
+	  System.out.println("End of Main Thread");  
+	 }
+	}
+
 		
 ===================================================================		
 Reflection: java.lang.reflect.*
