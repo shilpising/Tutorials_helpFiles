@@ -5,6 +5,15 @@
 
 Vehicle.super.turnAlarmOn();//Here Vehicle is the interface name.
 
+@Override
+	public void defaultmethod() {
+		
+			System.out.println("Inside defaultmethod of class");
+		
+		interface1.super.defaultmethod();
+		interface2.super.defaultmethod();
+	}
+
 5. Static Interface Methods: Since static methods don’t belong to a particular object, they are not part of the API of the classes implementing the interface, and they have to be called by using the interface name preceding the method name.
 	Defining a static method within an interface is identical to defining one in a class. Moreover, a static method can be invoked within other static and default methods.
 
@@ -912,6 +921,57 @@ Ans) First of all I would like to tell you that there is no concept of parent - 
 	 }
 	}
 
+Q. what are Daemon threads?
+
+
+Daemon thread in Java
+
+Daemon thread is a low priority thread that runs in background to perform tasks such as garbage collection.
+
+Properties:
+
+    They can not prevent the JVM from exiting when all the user threads finish their execution.
+    JVM terminates itself when all user threads finish their execution
+    If JVM finds running daemon thread, it terminates the thread and after that shutdown itself. JVM does not care whether Daemon thread is running or not.
+    It is an utmost low priority thread.
+
+Exceptions in Daemon thread
+
+If you call the setDaemon() method after starting the thread, it would throw IllegalThreadStateException.
+filter_none
+
+// Java program to demonstrate the usage of  
+// exception in Daemon() Thread 
+public class DaemonThread extends Thread 
+{ 
+    public void run() 
+    { 
+        System.out.println("Thread name: " + Thread.currentThread().getName()); 
+        System.out.println("Check if its DaemonThread: " 
+                        + Thread.currentThread().isDaemon()); 
+    } 
+  
+    public static void main(String[] args) 
+    { 
+        DaemonThread t1 = new DaemonThread(); 
+        DaemonThread t2 = new DaemonThread(); 
+        t1.start(); 
+          
+        // Exception as the thread is already started 
+        t1.setDaemon(true); 
+          
+        t2.start(); 
+    } 
+} 
+
+Runtime exception:
+
+Exception in thread "main" java.lang.IllegalThreadStateException
+    at java.lang.Thread.setDaemon(Thread.java:1352)
+    at DaemonThread.main(DaemonThread.java:19)
+
+Output:
+
 		
 ===================================================================		
 Reflection: java.lang.reflect.*
@@ -1091,3 +1151,4 @@ The method that you pass the Mutable object into won't change the object. The co
 immutable-class-object-private-constructor-factory-method: not needed if we make the class as final
 
 That said, making a constructor private is just one way to prevent class from being overriden. Why? Because in sub-class, every constructor (implicitly) calls super(), a default constructor of base class. But if you make this constructor private, sub-class cannot call it and thus cannot override the base class. This approach is very suitable when you want to control the total number of instances of particular class, for example in case of singletons.
+
