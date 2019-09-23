@@ -1,0 +1,17 @@
+OutOfMemoryError:
+	holding onto objects too long, or trying to process too much data at a time. 
+	Sometimes, it indicates a problem that’s out of your control, such as a third-party library that caches strings, 
+	or an application server that doesn’t clean up after deploys. 
+	And sometimes, it has nothing to do with objects on the heap.
+	The java.lang.OutOfMemoryError exception can also be thrown by native library code 
+	when a native allocation cannot be satisfied (for example, if swap space is low)
+
+Error 1 – Java heap space :
+This error arises due to the applications that make excessive use of finalizers. If a class has a finalize method, then objects of that type do not have their space reclaimed at garbage collection time. Instead, after garbage collection, the objects are queued for finalization, which occurs at a later time. Implementation:
+
+    finalizers are executed by a daemon thread that services the finalization queue.
+    If the finalizer thread cannot keep up, with the finalization queue, then the Java heap could fill up and this type of OutOfMemoryError exception would be thrown.
+    The problem can also be as simple as a configuration issue, where the specified heap size (or the default size, if it is not specified) is insufficient for the application.
+
+http://jagadesh4java.blogspot.com/2014/09/analyzing-memory-leaks-finalize.html
+https://www.geeksforgeeks.org/understanding-outofmemoryerror-exception-java/
