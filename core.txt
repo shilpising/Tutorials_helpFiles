@@ -973,7 +973,29 @@ Exception in thread "main" java.lang.IllegalThreadStateException
 Output:
 
 		
-===================================================================		
+===================================================================
+
+join() method
+The join() method of a Thread instance can be used to “join” the start of a thread’s execution to the end of another thread’s execution so that a thread will not start running until another thread has ended. If join() is called on a Thread instance, the currently running thread will block until the Thread instance has finished executing.
+
+If you look at source code of join() method, It internally invokes wait() method and wait() method release all the resources before going to WAITING state.
+?
+1
+2
+3
+4
+5
+6
+7
+public final synchronized void join(){
+    ...
+    while (isAlive()) {
+        wait(0);
+    }
+    ...
+}
+So, YES. join() method release resources and goes to waiting state.
+=====================================
 Reflection: java.lang.reflect.*
 
 It can be used basically if we want to modify the feature at runtime.
