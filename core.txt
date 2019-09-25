@@ -976,7 +976,7 @@ Output:
 ===================================================================
 
 join() method
-The join() method of a Thread instance can be used to “join” the start of a thread’s execution to the end of another thread’s execution so that a thread will not start running until another thread has ended. If join() is called on a Thread instance, the currently running thread will block until the Thread instance has finished executing.
+join() method is used for waiting the thread in execution until the thread on which join is called is not completed. Remember, the thread which will wait is the thread in execution and it will wait until the thread on which join method called is not completed.
 
 If you look at source code of join() method, It internally invokes wait() method and wait() method release all the resources before going to WAITING state.
 ?
@@ -995,6 +995,7 @@ public final synchronized void join(){
     ...
 }
 So, YES. join() method release resources and goes to waiting state.
+http://javabypatel.blogspot.com/2016/09/java-multithreading-interview-questions-answers.html
 =====================================
 Reflection: java.lang.reflect.*
 
