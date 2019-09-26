@@ -24,6 +24,49 @@ after retaining a reference to it so that future invocations can avoid the more 
 
 An atomic operation is one that is atomic with respect to all operations, including itself, that operate on the same state. To ensure thread safety, check-then-act operations (like lazy initialization) and read-modify-write operations (like increment) must always be atomic
 
+Double check Locking----------------------------
+
+class DCLSingleton {
+
+    private static voaltile DCLSingleton _instance  = null;
+
+    private DCLSingleton() {
+    }
+
+    public static DCLSingleton instance() {
+        if (_instance == null) { // 1st check
+
+            synchronized (DCLSingleton.class) {
+
+                if (_instance == null) // 2nd check
+                {
+                    _instance = new DCLSingleton();
+                }
+            }
+        }
+        return _instance;
+    }
+}
+
+Why Double checked locking is broken Prior to 5
+
+Suppose one thread, Thread-1 is inside synchronized block and it's creating Singleton instance and assigning reference to _instance variable. In the mean time, Thread scheduler stops the Thread-1. Now, a second thread, Thread-2 enters and come to 1st check point which is not synchronized, now there is a possibility that it can see half-initialized _instnace field and return that to the client, leading to subtle bugs in your program.
+
+This issue was fixed by introducing happens-before guarantee provided by the volatile variable in Java 1.5. According to this rule, write to a volatile field will happen before any read, which negates the possibility of seeing half initialized instance of Singleton class.
+
+Safe alternatives of Double-checked Locking Pattern
+
+1. Make the whole method Synchronized
+2. using Enum as Singleton in Java:
+	public enum ThreadSafeSingleton{
+	  INSTANCE;
+	}
+3. class EagerSingleton {
+   public static EagerSingleton singleton = new EagerSingleton ();
+}
+4. via Inner class
+	One more alternative of double checked locking is Initialization on Demand Holder idiom, which uses an inner class to encapsulate Singleton instance. This idiom takes advantage of the fact that Inner class is not loaded until they are referenced.
+
 The java.util.concurrent.atomic(e.x. AtomicLong) package contains atomic variable classes for effecting atomic state transitions on
 numbers and object references.
 
