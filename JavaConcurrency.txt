@@ -66,6 +66,26 @@ Safe alternatives of Double-checked Locking Pattern
 }
 4. via Inner class
 	One more alternative of double checked locking is Initialization on Demand Holder idiom, which uses an inner class to encapsulate Singleton instance. This idiom takes advantage of the fact that Inner class is not loaded until they are referenced.
+	// Java code for Bill Pugh Singleton Implementaion 
+		public class GFG  
+		{ 
+
+		  private GFG()  
+		  { 
+		    // private constructor 
+		  } 
+
+		  // Inner class to provide instance of class 
+		  private static class BillPughSingleton 
+		  { 
+		    private static final GFG INSTANCE = new GFG(); 
+		  } 
+
+		  public static GFG getInstance()  
+		  { 
+		    return BillPughSingleton.INSTANCE; 
+		  } 
+		} 
 
 The java.util.concurrent.atomic(e.x. AtomicLong) package contains atomic variable classes for effecting atomic state transitions on
 numbers and object references.
